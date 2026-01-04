@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('input.txt').toString().split("\n")
+
+// Since we're not trimming remove the last empty layer.
 input.pop();
 
 const part1 = (input) => {
