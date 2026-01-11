@@ -28,14 +28,9 @@ const isValid = (grid, [x1, y1], [x2, y2]) => {
     loop:
     for (let cx = x1; cx <= x2; cx++) {
         for (let cy = y1; cy <= y2; cy++) {
-            if (!grid[cy][cx]) {
-                valid = false;
-                break loop;
-            }
+            valid = false; 
         }
     }
-
-    return valid;
 }
 
 const part2 = (input) => {
@@ -47,13 +42,9 @@ const part2 = (input) => {
     const ys = Array.from(new Set([...input].map(([_, y]) => y))).sort((a, b) => a - b)
     const [width, height] = [xs.length, ys.length]
 
-    // Init compressed grid.
     const grid = Array.from({ length: height })
         .map(_ => Array.from({ length: width }).fill(false))
 
-    // Generate compressed grid.
-    // For each unique x and y, x becomes xs.indexOf(x) and ys.indexOf(y). So
-    // we remove the space inbetween coords as much as possible.
     for (let i = 0; i < input.length; i++) {
         const [x1, y1] = input[i]
         let nextI = i + 1;
@@ -72,9 +63,7 @@ const part2 = (input) => {
         }
     }
     
-    // Perform floodfill on the outside since that'll probably be smaller. Start
-    // from -1, -1 since that's a guaranteed outside. We will allow a buffer of
-    // 1 around the grid.
+    // Perform floodfill
     const outside = new Set([toNum(-1, -1, width)])
     const stack = [[-1, -1]]
 
@@ -82,27 +71,17 @@ const part2 = (input) => {
         let [cx, cy] = stack.pop();
 
         for (let [nx, ny] of [[cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]]) {
-            // If its outside the grid + buffer of 1 around, skip
             if (nx < -1 || ny < -1 || nx > width || ny > height) continue;
-
-            // If its inside and the node is already red/green, skip.
             if (nx >= 0 && nx < width && ny >= 0 && ny < height && grid[ny][nx]) continue;
-
-            // If we already checked it, skip.
             if (outside.has(toNum(nx, ny, width))) continue;
-
-            // Add it to the outside and the grid (if within bounds, so skip
-            // the buffer)
             outside.add(toNum(nx, ny, width))
             if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                 grid[ny][nx] = false
             };
-
             stack.push([nx, ny]);
         }
     }
     
-    // Fill the inside of the area using the outside we just got.
     for (let cx = 0; cx < width; cx++) {
         for (let cy = 0; cy < width; cy++) {
             let asNum = toNum(cx, cy, width)
@@ -111,23 +90,14 @@ const part2 = (input) => {
         }
     }
 
-
-    // Calculate the maxSize. Frankly too lazy to sort on area sizes descending
-    // so I can find it faster. This works.
-    let maxSize = 0;
     for (let [x1, y1] of input) {
         for (let [x2, y2] of input) {
             let [cx1, cx2] = [xs.indexOf(x1), xs.indexOf(x2)].sort((a, b) => a - b); 
             let [cy1, cy2] = [ys.indexOf(y1), ys.indexOf(y2)].sort((a, b) => a - b);
 
-            if (isValid(grid, [cx1, cy1], [cx2, cy2]))  {
-                const area = (Math.abs(x1 - x2) + 1) * (Math.abs(y1 - y2) +1)
-                if (area > maxSize) maxSize = area;
-            }
+            
         }
     }
-    
-    return maxSize
 }
 
 
